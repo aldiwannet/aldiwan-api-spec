@@ -6,7 +6,7 @@
     "description": "Published CATS poets and their poems only. Member accounts, community poems, quotations, and internal services are excluded. Preserve the attribution returned with poem content.",
     "license": {"name": "MIT", "url": "https://opensource.org/license/mit"}
   },
-  "servers": [{"url": "https://api.aldiwan.net/api/v1"}],
+  "servers": [{"url": "https://api.aldiwan.net/v1"}],
   "tags": [
     {"name": "Poets", "description": "Published classical poets."},
     {"name": "Poems", "description": "Published classical poetry."},

@@ -10,13 +10,13 @@ The canonical, machine-readable contract for AlDiwan's public poetry API. It con
 
 1. Create an API key in the [AlDiwan developer platform](https://developers.aldiwan.net/).
 2. Set `ALDIWAN_API_KEY` locally. Never commit it.
-3. Use the base URL `https://api.aldiwan.net/api/v1` and send `Authorization: Bearer <key>`.
+3. Use the base URL `https://api.aldiwan.net/v1` and send `Authorization: Bearer <key>`.
 
 ```bash
 curl --fail --silent \
   --header "Accept: application/json" \
   --header "Authorization: Bearer $ALDIWAN_API_KEY" \
-  "https://api.aldiwan.net/api/v1/poems?per_page=10&poem_style=vertical"
+  "https://api.aldiwan.net/v1/poems?per_page=10&poem_style=vertical"
 ```
 
 - OpenAPI: [`spec/openapi.json`](spec/openapi.json)
@@ -35,7 +35,7 @@ Validate locally with `npm test` (Node.js 20+, no dependencies).
 
 1. أنشئ مفتاح API من [منصة مطوري الديوان](https://developers.aldiwan.net/).
 2. خزّن المفتاح محليًا في `ALDIWAN_API_KEY` ولا تضفه إلى Git.
-3. استخدم العنوان الأساسي `https://api.aldiwan.net/api/v1` وأرسل المفتاح بصيغة Bearer.
+3. استخدم العنوان الأساسي `https://api.aldiwan.net/v1` وأرسل المفتاح بصيغة Bearer.
 
 يمكن التحقق محليًا عبر `npm test` باستخدام Node.js 20 أو أحدث، دون تثبيت حزم خارجية. يُرجى الالتزام ببيانات النسب الموجودة في كائن `attribution` عند عرض المحتوى.
 

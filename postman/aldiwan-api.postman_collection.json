@@ -5,7 +5,7 @@
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    {"key": "base_url", "value": "https://api.aldiwan.net/api/v1", "type": "string"},
+    {"key": "base_url", "value": "https://api.aldiwan.net/v1", "type": "string"},
     {"key": "api_key", "value": "", "type": "string"}
   ],
   "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{api_key}}", "type": "string"}]},

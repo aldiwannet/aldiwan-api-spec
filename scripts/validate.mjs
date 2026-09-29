@@ -19,7 +19,7 @@ const spec = await json(openapiPath, 'OpenAPI document');
 const collection = await json(postmanPath, 'Postman collection');
 
 if (!/^3\.0\./.test(spec.openapi ?? '')) failures.push('OpenAPI must declare version 3.0.x.');
-if (spec.servers?.[0]?.url !== 'https://api.aldiwan.net/api/v1') failures.push('Unexpected public API server URL.');
+if (spec.servers?.[0]?.url !== 'https://api.aldiwan.net/v1') failures.push('Unexpected public API server URL.');
 if (!spec.components?.securitySchemes?.bearerApiKey) failures.push('Bearer API-key security scheme is missing.');
 if (!spec.paths || Object.keys(spec.paths).length === 0) failures.push('OpenAPI contains no paths.');
 for (const [path, item] of Object.entries(spec.paths ?? {})) {
@@ -33,7 +33,7 @@ for (const [path, item] of Object.entries(spec.paths ?? {})) {
 
 if (collection.info?.schema !== 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json') failures.push('Postman collection must use schema v2.1.0.');
 const variables = Object.fromEntries((collection.variable ?? []).map(({ key, value }) => [key, value]));
-if (variables.base_url !== 'https://api.aldiwan.net/api/v1') failures.push('Postman base_url is unexpected.');
+if (variables.base_url !== 'https://api.aldiwan.net/v1') failures.push('Postman base_url is unexpected.');
 if (variables.api_key !== '') failures.push('Postman api_key must be empty.');
 
 function requests(items = []) {
