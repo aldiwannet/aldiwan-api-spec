@@ -1,0 +1,36 @@
+name: Specification bug
+description: Report a mismatch or ambiguity in the public API contract.
+title: "[Spec]: "
+labels: [bug, specification]
+body:
+  - type: markdown
+    attributes:
+      value: Do not include API keys, personal data, or private response bodies.
+  - type: input
+    id: path
+    attributes:
+      label: Endpoint or schema
+      placeholder: GET /poems or components.schemas.Poem
+    validations:
+      required: true
+  - type: textarea
+    id: observed
+    attributes:
+      label: Observed problem
+      description: Explain the mismatch without sensitive data.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected contract
+    validations:
+      required: true
+  - type: dropdown
+    id: breaking
+    attributes:
+      label: Could the correction break clients?
+      options: [Unknown, "No", "Yes"]
+    validations:
+      required: true
+

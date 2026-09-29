@@ -1,0 +1,33 @@
+{
+  "info": {
+    "name": "AlDiwan API v1",
+    "description": "Authenticated CATS-only AlDiwan API collection. Set api_key in a private Postman environment; never save a real key in this collection.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {"key": "base_url", "value": "https://api.aldiwan.net/api/v1", "type": "string"},
+    {"key": "api_key", "value": "", "type": "string"}
+  ],
+  "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{api_key}}", "type": "string"}]},
+  "item": [
+    {"name": "Poets", "item": [
+      {"name": "List poets", "request": {"method": "GET", "header": [{"key": "Accept", "value": "application/json"}], "url": "{{base_url}}/poets?per_page=10"}},
+      {"name": "Get poet", "request": {"method": "GET", "header": [{"key": "Accept", "value": "application/json"}], "url": "{{base_url}}/poets/1"}},
+      {"name": "Poet poems", "request": {"method": "GET", "header": [{"key": "Accept", "value": "application/json"}], "url": "{{base_url}}/poets/1/poems?per_page=10"}}
+    ]},
+    {"name": "Poems", "item": [
+      {"name": "List poems", "request": {"method": "GET", "header": [{"key": "Accept", "value": "application/json"}], "url": "{{base_url}}/poems?per_page=10&poem_style=vertical"}},
+      {"name": "Get poem", "request": {"method": "GET", "header": [{"key": "Accept", "value": "application/json"}], "url": "{{base_url}}/poems/1"}},
+      {"name": "Count poems", "request": {"method": "GET", "header": [{"key": "Accept", "value": "application/json"}], "url": "{{base_url}}/poems/count"}},
+      {"name": "Poem slugs", "request": {"method": "GET", "header": [{"key": "Accept", "value": "application/json"}], "url": "{{base_url}}/poems/slugs?per_page=10"}}
+    ]},
+    {"name": "Search", "item": [{"name": "Search poems and poets", "request": {"method": "GET", "header": [{"key": "Accept", "value": "application/json"}], "url": "{{base_url}}/search?q=%D8%A7%D9%84%D9%85%D8%AA%D9%86%D8%A8%D9%8A&per_page=10"}}]},
+    {"name": "Discovery", "item": [
+      {"name": "Categories", "request": {"method": "GET", "url": "{{base_url}}/categories"}},
+      {"name": "Eras", "request": {"method": "GET", "url": "{{base_url}}/eras"}},
+      {"name": "Meters", "request": {"method": "GET", "url": "{{base_url}}/meters"}},
+      {"name": "Rhymes", "request": {"method": "GET", "url": "{{base_url}}/rhymes"}},
+      {"name": "Themes", "request": {"method": "GET", "url": "{{base_url}}/themes"}}
+    ]}
+  ]
+}

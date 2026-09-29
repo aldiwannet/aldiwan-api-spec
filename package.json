@@ -1,0 +1,15 @@
+{
+  "name": "@aldiwan/api-spec",
+  "version": "1.0.0",
+  "private": true,
+  "description": "The canonical OpenAPI and Postman specifications for the public AlDiwan API.",
+  "license": "MIT",
+  "scripts": {
+    "test": "node scripts/validate.mjs",
+    "validate": "node scripts/validate.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
+

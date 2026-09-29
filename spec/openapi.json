@@ -1,0 +1,105 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "AlDiwan Developers API",
+    "version": "1.0.0",
+    "description": "Published CATS poets and their poems only. Member accounts, community poems, quotations, and internal services are excluded. Preserve the attribution returned with poem content.",
+    "license": {"name": "MIT", "url": "https://opensource.org/license/mit"}
+  },
+  "servers": [{"url": "https://api.aldiwan.net/api/v1"}],
+  "tags": [
+    {"name": "Poets", "description": "Published classical poets."},
+    {"name": "Poems", "description": "Published classical poetry."},
+    {"name": "Search", "description": "Search across public poets and poems."},
+    {"name": "Discovery", "description": "Controlled vocabularies used for filtering."}
+  ],
+  "security": [{"bearerApiKey": []}],
+  "components": {
+    "securitySchemes": {
+      "bearerApiKey": {"type": "http", "scheme": "bearer", "bearerFormat": "API key"}
+    },
+    "parameters": {
+      "page": {"name": "page", "in": "query", "schema": {"type": "integer", "minimum": 1, "default": 1}},
+      "perPage": {"name": "per_page", "in": "query", "schema": {"type": "integer", "minimum": 1, "maximum": 50, "default": 20}},
+      "id": {"name": "id", "in": "path", "required": true, "schema": {"type": "integer", "minimum": 1}},
+      "poetId": {"name": "poet_id", "in": "query", "schema": {"type": "integer", "minimum": 1}},
+      "eraId": {"name": "era_id", "in": "query", "schema": {"type": "integer", "minimum": 1}},
+      "theme": {"name": "theme", "in": "query", "schema": {"type": "string", "maxLength": 100}},
+      "meter": {"name": "meter", "in": "query", "schema": {"type": "string", "maxLength": 100}},
+      "rhyme": {"name": "rhyme", "in": "query", "schema": {"type": "string", "maxLength": 100}},
+      "poemStyle": {"name": "poem_style", "in": "query", "description": "Normalized poem form. vertical uses paired hemistichs; prose uses lines; free_verse uses stanzas.", "schema": {"type": "string", "enum": ["vertical", "prose", "free_verse", "unknown"]}}
+    },
+    "schemas": {
+      "PoetSummary": {
+        "type": "object",
+        "required": ["id", "name", "slug"],
+        "additionalProperties": false,
+        "properties": {"id": {"type": "integer"}, "name": {"type": "string"}, "slug": {"type": "string"}}
+      },
+      "Era": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {"id": {"type": "integer"}, "name": {"type": "string"}}
+      },
+      "Poet": {
+        "type": "object",
+        "required": ["id", "name", "slug", "image_url", "biography", "gender", "era", "country", "canonical_url"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {"type": "integer"}, "name": {"type": "string"}, "slug": {"type": "string"},
+          "image_url": {"type": "string", "format": "uri", "nullable": true},
+          "biography": {"type": "string", "nullable": true}, "gender": {"type": "integer", "nullable": true},
+          "era": {"$ref": "#/components/schemas/Era"},
+          "country": {"type": "string", "nullable": true, "description": "Reserved; null until a verified CATS country source exists."},
+          "canonical_url": {"type": "string", "format": "uri"}
+        }
+      },
+      "Attribution": {
+        "type": "object",
+        "required": ["required", "text", "url"],
+        "additionalProperties": false,
+        "properties": {"required": {"type": "boolean"}, "text": {"type": "string"}, "url": {"type": "string", "format": "uri"}}
+      },
+      "Poem": {
+        "type": "object",
+        "required": ["id", "title", "slug", "poet", "era", "meter", "theme", "rhyme", "poem_style", "display_layout", "text", "canonical_url", "attribution"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {"type": "integer"}, "title": {"type": "string"}, "slug": {"type": "string"},
+          "poet": {"$ref": "#/components/schemas/PoetSummary"},
+          "era": {"$ref": "#/components/schemas/Era"},
+          "meter": {"type": "string", "nullable": true},
+          "theme": {"type": "string", "nullable": true},
+          "rhyme": {"type": "string", "nullable": true},
+          "poem_style": {"type": "string", "enum": ["vertical", "prose", "free_verse", "unknown"], "description": "Normalized literary form; does not expose the source database field."},
+          "display_layout": {"type": "string", "enum": ["hemistichs", "lines", "stanzas"], "description": "Rendering hint. Preserve text line breaks; pair consecutive lines only for hemistichs."},
+          "text": {"type": "string"},
+          "canonical_url": {"type": "string", "format": "uri"},
+          "attribution": {"$ref": "#/components/schemas/Attribution"}
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {"type": "object", "required": ["code", "message", "request_id"],
+            "properties": {"code": {"type": "string"}, "message": {"type": "string"}, "request_id": {"type": "string"}}}
+        }
+      }
+    }
+  },
+  "paths": {
+    "/poets": {"get": {"operationId": "listPoets", "tags": ["Poets"], "summary": "List CATS poets", "parameters": [{"$ref": "#/components/parameters/page"}, {"$ref": "#/components/parameters/perPage"}, {"name": "q", "in": "query", "schema": {"type": "string", "maxLength": 100}}], "responses": {"200": {"description": "Paginated Poet list"}}}},
+    "/poets/{id}": {"get": {"operationId": "getPoet", "tags": ["Poets"], "summary": "Get a CATS poet", "parameters": [{"$ref": "#/components/parameters/id"}], "responses": {"200": {"description": "Poet"}}}},
+    "/poets/{id}/poems": {"get": {"operationId": "listPoetPoems", "tags": ["Poets", "Poems"], "summary": "List poems by a CATS poet", "parameters": [{"$ref": "#/components/parameters/id"}, {"$ref": "#/components/parameters/page"}, {"$ref": "#/components/parameters/perPage"}], "responses": {"200": {"description": "Paginated Poem list"}}}},
+    "/poems": {"get": {"operationId": "listPoems", "tags": ["Poems"], "summary": "List CATS poems", "parameters": [{"$ref": "#/components/parameters/page"}, {"$ref": "#/components/parameters/perPage"}, {"$ref": "#/components/parameters/poetId"}, {"$ref": "#/components/parameters/eraId"}, {"$ref": "#/components/parameters/theme"}, {"$ref": "#/components/parameters/meter"}, {"$ref": "#/components/parameters/rhyme"}, {"$ref": "#/components/parameters/poemStyle"}], "responses": {"200": {"description": "Paginated Poem list"}}}},
+    "/poems/count": {"get": {"operationId": "countPoems", "tags": ["Poems"], "summary": "Count filtered CATS poems", "responses": {"200": {"description": "Filtered count"}}}},
+    "/poems/slugs": {"get": {"operationId": "listPoemSlugs", "tags": ["Poems"], "summary": "List CATS poem slugs", "responses": {"200": {"description": "Paginated identifiers"}}}},
+    "/poems/{id}": {"get": {"operationId": "getPoem", "tags": ["Poems"], "summary": "Get a CATS poem with full text", "parameters": [{"$ref": "#/components/parameters/id"}], "responses": {"200": {"description": "Poem"}}}},
+    "/search": {"get": {"operationId": "search", "tags": ["Search"], "summary": "Search CATS poets and poems", "parameters": [{"name": "q", "in": "query", "required": true, "schema": {"type": "string", "minLength": 2, "maxLength": 100}}, {"name": "type", "in": "query", "schema": {"type": "string", "enum": ["all", "poems", "poets"]}}], "responses": {"200": {"description": "Grouped results"}}}},
+    "/categories": {"get": {"operationId": "listCategories", "tags": ["Discovery"], "summary": "List themes (compatibility alias)", "responses": {"200": {"description": "Themes"}}}},
+    "/themes": {"get": {"operationId": "listThemes", "tags": ["Discovery"], "summary": "List themes", "responses": {"200": {"description": "Themes"}}}},
+    "/eras": {"get": {"operationId": "listEras", "tags": ["Discovery"], "summary": "List eras", "responses": {"200": {"description": "Eras"}}}},
+    "/meters": {"get": {"operationId": "listMeters", "tags": ["Discovery"], "summary": "List meters", "responses": {"200": {"description": "Meters"}}}},
+    "/rhymes": {"get": {"operationId": "listRhymes", "tags": ["Discovery"], "summary": "List rhymes", "responses": {"200": {"description": "Rhymes"}}}}
+  }
+}
