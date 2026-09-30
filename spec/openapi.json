@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "AlDiwan Developers API",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "description": "Published CATS poets and their poems only. Member accounts, community poems, quotations, and internal services are excluded. Preserve the attribution returned with poem content.",
     "license": {"name": "MIT", "url": "https://opensource.org/license/mit"}
   },
@@ -60,9 +60,33 @@
         "additionalProperties": false,
         "properties": {"required": {"type": "boolean"}, "text": {"type": "string"}, "url": {"type": "string", "format": "uri"}}
       },
+      "PoemSummary": {
+        "type": "object",
+        "required": ["id", "title", "slug", "poet", "era", "meter", "theme", "rhyme", "poem_style", "display_layout", "excerpt", "canonical_url", "attribution"],
+        "additionalProperties": false,
+        "description": "Summary returned by list, search, and poet-poem endpoints. It contains an excerpt of at most 240 characters and never contains full poem text.",
+        "properties": {
+          "id": {"type": "integer"}, "title": {"type": "string"}, "slug": {"type": "string"},
+          "poet": {"$ref": "#/components/schemas/PoetSummary"}, "era": {"$ref": "#/components/schemas/Era"},
+          "meter": {"type": "string", "nullable": true}, "theme": {"type": "string", "nullable": true}, "rhyme": {"type": "string", "nullable": true},
+          "poem_style": {"type": "string", "enum": ["vertical", "prose", "free_verse", "unknown"]},
+          "display_layout": {"type": "string", "enum": ["hemistichs", "lines", "stanzas"]},
+          "excerpt": {"type": "string", "maxLength": 240, "description": "A text excerpt with a maximum length of 240 characters."},
+          "canonical_url": {"type": "string", "format": "uri"}, "attribution": {"$ref": "#/components/schemas/Attribution"}
+        }
+      },
+      "PoemCollection": {
+        "type": "object",
+        "description": "Paginated collection of poem summaries. The data array does not contain full poem text.",
+        "properties": {
+          "data": {"type": "array", "items": {"$ref": "#/components/schemas/PoemSummary"}},
+          "meta": {"type": "object"},
+          "links": {"type": "object"}
+        }
+      },
       "Poem": {
         "type": "object",
-        "required": ["id", "title", "slug", "poet", "era", "meter", "theme", "rhyme", "poem_style", "display_layout", "text", "canonical_url", "attribution"],
+        "required": ["id", "title", "slug", "poet", "era", "meter", "theme", "rhyme", "poem_style", "display_layout", "excerpt", "text", "canonical_url", "attribution"],
         "additionalProperties": false,
         "properties": {
           "id": {"type": "integer"}, "title": {"type": "string"}, "slug": {"type": "string"},
@@ -73,6 +97,7 @@
           "rhyme": {"type": "string", "nullable": true},
           "poem_style": {"type": "string", "enum": ["vertical", "prose", "free_verse", "unknown"], "description": "Normalized literary form; does not expose the source database field."},
           "display_layout": {"type": "string", "enum": ["hemistichs", "lines", "stanzas"], "description": "Rendering hint. Preserve text line breaks; pair consecutive lines only for hemistichs."},
+          "excerpt": {"type": "string", "maxLength": 240, "description": "The same bounded preview field returned by summary endpoints."},
           "text": {"type": "string"},
           "canonical_url": {"type": "string", "format": "uri"},
           "attribution": {"$ref": "#/components/schemas/Attribution"}
@@ -87,15 +112,20 @@
       }
     }
   },
+  "x-quota-headers": {
+    "general-monthly": ["X-MonthlyQuota-Limit", "X-MonthlyQuota-Remaining", "X-MonthlyQuota-Reset"],
+    "full-text": ["X-FullTextQuota-Daily-Limit", "X-FullTextQuota-Daily-Remaining", "X-FullTextQuota-Daily-Reset", "X-FullTextQuota-Monthly-Limit", "X-FullTextQuota-Monthly-Remaining", "X-FullTextQuota-Monthly-Reset"],
+    "reset": "Monthly quota counters reset at the start of each calendar month, including for annual plans."
+  },
   "paths": {
     "/poets": {"get": {"operationId": "listPoets", "tags": ["Poets"], "summary": "List CATS poets", "parameters": [{"$ref": "#/components/parameters/page"}, {"$ref": "#/components/parameters/perPage"}, {"name": "q", "in": "query", "schema": {"type": "string", "maxLength": 100}}], "responses": {"200": {"description": "Paginated Poet list"}}}},
     "/poets/{id}": {"get": {"operationId": "getPoet", "tags": ["Poets"], "summary": "Get a CATS poet", "parameters": [{"$ref": "#/components/parameters/id"}], "responses": {"200": {"description": "Poet"}}}},
-    "/poets/{id}/poems": {"get": {"operationId": "listPoetPoems", "tags": ["Poets", "Poems"], "summary": "List poems by a CATS poet", "parameters": [{"$ref": "#/components/parameters/id"}, {"$ref": "#/components/parameters/page"}, {"$ref": "#/components/parameters/perPage"}], "responses": {"200": {"description": "Paginated Poem list"}}}},
-    "/poems": {"get": {"operationId": "listPoems", "tags": ["Poems"], "summary": "List CATS poems", "parameters": [{"$ref": "#/components/parameters/page"}, {"$ref": "#/components/parameters/perPage"}, {"$ref": "#/components/parameters/poetId"}, {"$ref": "#/components/parameters/eraId"}, {"$ref": "#/components/parameters/theme"}, {"$ref": "#/components/parameters/meter"}, {"$ref": "#/components/parameters/rhyme"}, {"$ref": "#/components/parameters/poemStyle"}], "responses": {"200": {"description": "Paginated Poem list"}}}},
+    "/poets/{id}/poems": {"get": {"operationId": "listPoetPoems", "tags": ["Poets", "Poems"], "summary": "List poems by a CATS poet", "parameters": [{"$ref": "#/components/parameters/id"}, {"$ref": "#/components/parameters/page"}, {"$ref": "#/components/parameters/perPage"}], "responses": {"200": {"description": "Paginated poem summaries with excerpts up to 240 characters; no full text field is returned.", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/PoemCollection"}}}}}}},
+    "/poems": {"get": {"operationId": "listPoems", "tags": ["Poems"], "summary": "List CATS poem summaries", "description": "Returns metadata and an excerpt of up to 240 characters. Full poem text is available only from GET /poems/{id}.", "parameters": [{"$ref": "#/components/parameters/page"}, {"$ref": "#/components/parameters/perPage"}, {"$ref": "#/components/parameters/poetId"}, {"$ref": "#/components/parameters/eraId"}, {"$ref": "#/components/parameters/theme"}, {"$ref": "#/components/parameters/meter"}, {"$ref": "#/components/parameters/rhyme"}, {"$ref": "#/components/parameters/poemStyle"}], "responses": {"200": {"description": "Paginated poem summaries with excerpts up to 240 characters; no full text field is returned.", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/PoemCollection"}}}}}}},
     "/poems/count": {"get": {"operationId": "countPoems", "tags": ["Poems"], "summary": "Count filtered CATS poems", "responses": {"200": {"description": "Filtered count"}}}},
     "/poems/slugs": {"get": {"operationId": "listPoemSlugs", "tags": ["Poems"], "summary": "List CATS poem slugs", "responses": {"200": {"description": "Paginated identifiers"}}}},
-    "/poems/{id}": {"get": {"operationId": "getPoem", "tags": ["Poems"], "summary": "Get a CATS poem with full text", "parameters": [{"$ref": "#/components/parameters/id"}], "responses": {"200": {"description": "Poem"}}}},
-    "/search": {"get": {"operationId": "search", "tags": ["Search"], "summary": "Search CATS poets and poems", "parameters": [{"name": "q", "in": "query", "required": true, "schema": {"type": "string", "minLength": 2, "maxLength": 100}}, {"name": "type", "in": "query", "schema": {"type": "string", "enum": ["all", "poems", "poets"]}}], "responses": {"200": {"description": "Grouped results"}}}},
+    "/poems/{id}": {"get": {"operationId": "getPoem", "tags": ["Poems"], "summary": "Get a CATS poem with full text", "description": "The only endpoint that returns full poem text. Full-text daily and monthly quotas apply separately from the general monthly quota.", "parameters": [{"$ref": "#/components/parameters/id"}], "responses": {"200": {"description": "Poem with full text"}, "429": {"description": "The separate full-text daily or monthly quota has been exhausted.", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Error"}, "example": {"error": {"code": "full_text_quota_exceeded", "message": "Full-text quota exceeded.", "request_id": "req_example"}}}}}}}},
+    "/search": {"get": {"operationId": "search", "tags": ["Search"], "summary": "Search CATS poets and poem summaries", "description": "Poem results include an excerpt of up to 240 characters and do not include full poem text.", "parameters": [{"name": "q", "in": "query", "required": true, "schema": {"type": "string", "minLength": 2, "maxLength": 100}}, {"name": "type", "in": "query", "schema": {"type": "string", "enum": ["all", "poems", "poets"]}}], "responses": {"200": {"description": "Grouped poet and poem summary results; poem excerpts are at most 240 characters and contain no full text."}}}},
     "/categories": {"get": {"operationId": "listCategories", "tags": ["Discovery"], "summary": "List themes (compatibility alias)", "responses": {"200": {"description": "Themes"}}}},
     "/themes": {"get": {"operationId": "listThemes", "tags": ["Discovery"], "summary": "List themes", "responses": {"200": {"description": "Themes"}}}},
     "/eras": {"get": {"operationId": "listEras", "tags": ["Discovery"], "summary": "List eras", "responses": {"200": {"description": "Eras"}}}},

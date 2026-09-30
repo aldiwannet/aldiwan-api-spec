@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "AlDiwan API v1",
-    "description": "Authenticated CATS-only AlDiwan API collection. Set api_key in a private Postman environment; never save a real key in this collection.",
+    "description": "Authenticated CATS-only AlDiwan API collection. Base URL: https://api.aldiwan.net/v1. Set api_key in a private Postman environment; never save a real key in this collection. Poem list, search, and poet-poem responses contain metadata plus excerpts up to 240 characters, never full poem text. Only GET /poems/{id} returns full text and uses separate daily and monthly full-text quotas. Successful responses expose X-MonthlyQuota-Limit, X-MonthlyQuota-Remaining, and X-MonthlyQuota-Reset; full-text responses also expose X-FullTextQuota-Daily-Limit/Remaining/Reset and X-FullTextQuota-Monthly-Limit/Remaining/Reset. Monthly quotas reset at the start of each calendar month. HTTP 429 error code full_text_quota_exceeded means the full-text quota is exhausted.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [

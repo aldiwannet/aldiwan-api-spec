@@ -23,6 +23,8 @@ curl --fail --silent \
 - Postman: [`postman/aldiwan-api.postman_collection.json`](postman/aldiwan-api.postman_collection.json)
 - Authentication: bearer API key
 - Pagination: `page` and `per_page` (maximum 50)
+- Poem collections and search return `PoemSummary` metadata with a bounded excerpt; only `GET /poems/{id}` returns full text.
+- General requests and full-text details use separate plan quotas. Do not retry calendar-quota errors until their reset time.
 - Attribution: honor the `attribution` object returned with poetry content.
 
 Validate locally with `npm test` (Node.js 20+, no dependencies).
@@ -39,6 +41,8 @@ Validate locally with `npm test` (Node.js 20+, no dependencies).
 
 يمكن التحقق محليًا عبر `npm test` باستخدام Node.js 20 أو أحدث، دون تثبيت حزم خارجية. يُرجى الالتزام ببيانات النسب الموجودة في كائن `attribution` عند عرض المحتوى.
 
+تعيد القوائم والبحث بيانات القصيدة المختصرة مع مقتطف محدود، بينما يعيد `GET /poems/{id}` وحده النص الكامل ويخضع لكوتة يومية وشهرية مستقلة عن كوتة الطلبات العامة.
+
 ## Versioning
 
 This repository follows [Semantic Versioning](https://semver.org/). Breaking contract changes require a major version. Additive endpoints and optional fields are minor changes; corrections that do not change behavior are patches.
@@ -46,4 +50,3 @@ This repository follows [Semantic Versioning](https://semver.org/). Breaking con
 ## License
 
 Specification and repository materials are released under the [MIT License](LICENSE). API content remains subject to AlDiwan's platform terms.
-
